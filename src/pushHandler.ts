@@ -1,5 +1,6 @@
 import { Client, Context, Config, PushPayload } from './types'
 import isEnabledForPR from './isEnabledForPR'
+import { AnyResponse } from '@octokit/rest';
 
 export default async function pushHandler(
     client: Client,
@@ -26,11 +27,21 @@ export default async function pushHandler(
                 expected_head_sha: pr.head.sha,
             }).catch((error) => {
                 console.log('error updating pr', pr.number)
-                return client.issues.createComment({
+                const labels = pr.labels.map((label) => label.name).filter((label) => config.whitelist.includes(label))
+                const tasks: Promise<AnyResponse>[] = labels.map((label) =>
+                    client.issues.removeLabel({
+                        ...context.repo,
+                        issue_number: pr.number,
+                        name: label
+                    }))
+                tasks.push(client.issues.createComment({
                     ...context.repo,
                     issue_number: pr.number,
-                    body: 'Could not update branch, possible merge conflict'
-                })
+                    body: 'Could not update branch. Most likely this is due to a ' +
+                          'merge conflict. Please update the branch manually and ' +
+                          'fix any issues.'
+                }))
+                return Promise.all(tasks)
             })
         }),
     )

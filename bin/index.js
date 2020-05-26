@@ -4500,7 +4500,12 @@ function pushHandler(client, context, config) {
             }
             return client.pulls.updateBranch(Object.assign(Object.assign({}, context.repo), { pull_number: pr.number, expected_head_sha: pr.head.sha })).catch((error) => {
                 console.log('error updating pr', pr.number);
-                return client.issues.createComment(Object.assign(Object.assign({}, context.repo), { issue_number: pr.number, body: 'Could not update branch, possible merge conflict' }));
+                const labels = pr.labels.map((label) => label.name).filter((label) => config.whitelist.includes(label));
+                const tasks = labels.map((label) => client.issues.removeLabel(Object.assign(Object.assign({}, context.repo), { issue_number: pr.number, name: label })));
+                tasks.push(client.issues.createComment(Object.assign(Object.assign({}, context.repo), { issue_number: pr.number, body: 'Could not update branch. Most likely this is due to a ' +
+                        'merge conflict. Please update the branch manually and ' +
+                        'fix any issues.' })));
+                return Promise.all(tasks);
             });
         }));
     });
