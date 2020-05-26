@@ -25,6 +25,13 @@ export default async function pushHandler(
                 ...context.repo,
                 pull_number: pr.number,
                 expected_head_sha: pr.head.sha,
+            }).catch((error) => {
+                console.log('error updating pr', pr.number)
+                return client.issues.createComment({
+                    ...context.repo,
+                    issue_number: pr.number,
+                    body: 'Could not update branch, possible merge conflict'
+                })
             })
         }),
     )
