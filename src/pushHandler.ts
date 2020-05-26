@@ -1,5 +1,4 @@
 import { Client, Context, Config, PushPayload } from './types'
-import Octokit = require('@octokit/rest')
 import isEnabledForPR from './isEnabledForPR'
 
 export default async function pushHandler(

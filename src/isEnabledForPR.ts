@@ -1,4 +1,5 @@
-import Octokit = require('@octokit/rest')
+import Octokit = require("@octokit/rest")
+
 export default function isEnabledForPR(
     pr: Octokit.PullsGetResponse | Octokit.PullsListResponseItem,
     whitelist: string[],

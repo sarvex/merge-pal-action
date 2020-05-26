@@ -4498,7 +4498,10 @@ function pushHandler(client, context, config) {
             if (!isEnabledForPR_1.default(pr, config.whitelist, config.blacklist)) {
                 return;
             }
-            return client.pulls.updateBranch(Object.assign(Object.assign({}, context.repo), { pull_number: pr.number, expected_head_sha: pr.head.sha }));
+            return client.pulls.updateBranch(Object.assign(Object.assign({}, context.repo), { pull_number: pr.number, expected_head_sha: pr.head.sha })).catch((error) => {
+                console.log('error updating pr', pr.number);
+                return client.issues.createComment(Object.assign(Object.assign({}, context.repo), { issue_number: pr.number, body: 'Could not update branch, possible merge conflict' }));
+            });
         }));
     });
 }
