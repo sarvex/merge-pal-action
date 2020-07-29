@@ -4564,7 +4564,8 @@ const github = __importStar(__webpack_require__(469));
 const core = __importStar(__webpack_require__(470));
 const main_1 = __importDefault(__webpack_require__(131));
 main_1.default(core, github).catch((error) => {
-    core.setFailed(error.message);
+    console.log("Failed to merge!", error.message);
+    console.log(error);
 });
 
 
